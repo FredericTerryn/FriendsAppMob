@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, Text, View, Button } from 'react-native';
 import {createBottomTabNavigator} from 'react-native';
 
-export default class Setting extends React.Component{
+export default class Settings extends React.Component{
     static navigationOptions = {
         title: 'Settings',
       };

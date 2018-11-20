@@ -10,9 +10,18 @@
   },
   "dependencies": {
     "expo": "^30.0.2",
+    "jwt-client": "^0.2.1",
+    "moment": "^2.22.2",
     "react": "16.3.1",
     "react-native": "https://github.com/expo/react-native/archive/sdk-30.0.0.tar.gz",
+    "react-native-calendars": "^1.21.0",
+    "react-native-dropdownalert": "^3.7.0",
+    "react-native-elements": "^0.19.1",
+    "react-native-linear-gradient": "^2.4.4",
+    "react-native-paper": "^2.2.5",
+    "react-native-super-grid": "^2.4.3",
     "react-navigation": "^2.18.1",
+    "react-navigation-material-bottom-tabs": "^1.0.0",
     "whatwg-fetch": "^2.0.4"
   }
 }

@@ -1,6 +1,13 @@
 import { createBottomTabNavigator } from 'react-navigation';
 import React from 'react';
-import { StyleSheet, Text, View, Button, TextInput, Alert, Image, FlatList } from 'react-native';
+import { StyleSheet, Text, View, TextInput, Alert, Image, FlatList } from 'react-native';
+import { AsyncStorage } from "react-native";
+import Login from "./Login.js";
+import { Header, statusBarProps,Button, leftComponent, centerComponent, rightComponent, backgroundColor, outerContainerStyles, innerContainerStyles }
+  from 'react-native-elements'
+import { SearchBar } from 'react-native-elements'
+import { List, ListItem } from 'react-native-elements'
+import { SecureStore } from 'expo';
 
 
 export default class Movies extends React.Component {
@@ -11,37 +18,109 @@ export default class Movies extends React.Component {
 
   constructor(props) {
     super(props);
-    this.state = { item: '', data: [], movies: [] };
+    this.state = { item: '', data: [], movies: [], token: '' };
+  }
+
+  componentDidMount() {
+  }
+
+  _storeData = async () => {
+    try {
+      await AsyncStorage.setItem('jwt', 'fout');
+    } catch (error) {
+      // Error saving data
+    }
   }
 
   buttonPressed = () => {
     this.setState({ data: [...this.state.data, { key: this.state.item }] });
   }
 
+  findUserData = () => {
+    this._retrieveData();
+  }
+
   FindMovies = () => {
+    
     const url = 'http://192.168.0.103:8080/MOVIES';
-    fetch(url)
-      .then((response) => response.json())
+
+    fetch(url
+      , {
+        headers: { 'Authorization': this.state.token }
+      }
+    )
+      .then((response) => response.json()) 
       .then((responseJson) => {
         this.setState({ movies: responseJson });
       })
       ;
   }
 
+    _retrieveData = async () => {  
+
+      try {
+        const value = await AsyncStorage.getItem("jwt");
+        if (value !== null) {
+          this.setState({token: value} , this.FindMovies);
+        }
+      } catch (error) {
+       console.log(error);
+      }
+    }
+  
+
+  search = () => {
+    // some method
+  }
+
+  navigatoHome = () => {
+    
+  }
+
+  renderRow ({ item }) {
+    return (
+      <ListItem 
+        title= {item.title}
+        subtitle = {item.director}
+        button onPress = {() => this.navigatoHome}
+        />
+    )
+  }
+
   render() {
     return (
-      <View>
-        <Text>Movie screen</Text>
-        <Image style={{ width: 400, height: 250 }} source={require('../images/fight_club_2.jpg')} />
-        <TextInput style={{ width: 200, borderColor: 'gray', borderWidth: 1 }}
-          onChangeText={(text) => this.setState({ item: text })}
-          value={this.state.item} />
-        <Button onPress={this.buttonPressed} title="press me" />
-        <FlatList data={this.state.data} renderItem={({ item }) => <Text>{item.key}</ Text>} />
+      <View style={styles.container}> 
+        <Header onPress={() => navigate('Movies')}
+          centerComponent={{ text: 'Movies',  style: { color: '#fff', fontWeight:'600', fontSize: 20  }  }}
+          innerContainerStyles={{ backgroundColor: '#36465d' }}
+          outerContainerStyles={{ backgroundColor: '#36465d' }} 
+          rightComponent={{ icon: 'home', color: '#fff' }}
+        />
+        <SearchBar
+          onChangeText={this.search}
+          onClearText={this.search}
+          placeholder='Type Here...' />
+        <Image style={{ width: 400, height: 100 }} source={require('../images/fight_club_2.jpg')} />
+        <Text> </Text>
+        <Button rounded icon={{name : 'refresh'}} title=" Movies " onPress={this.findUserData}    />
 
-        <Button title="FindMovies" onPress={this.FindMovies} />
-        <FlatList keyExtractor={item => item.id} renderItem={({ item }) => <Text> {item.title}, {item.director} </Text>} data={this.state.movies} />
+        <FlatList keyExtractor={item => item.id} 
+        style={styles.flatlist}
+                  renderItem={this.renderRow} 
+                  data={this.state.movies}
+                  onPressRightIcon= {this.navigatesomewhere} />
       </View>
     )
   }
 }
+
+
+const styles = StyleSheet.create({
+  container: {
+    backgroundColor: '#f5f5f5',
+    height: '100%'
+  }, 
+  flatlist: {
+    backgroundColor: '#fff'
+  }
+});
