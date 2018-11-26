@@ -8,6 +8,7 @@ import Settings from './Components/Settings';
 import Events from './Components/Events';
 import Debts from './Components/Debts'; 
 import Expo from 'expo';
+import add from './Components/add'
 import { Header, statusBarProps, leftComponent, centerComponent, rightComponent, backgroundColor, outerContainerStyles, innerContainerStyles }
   from 'react-native-elements'
 import GridView from 'react-native-super-grid';
@@ -33,6 +34,7 @@ class HomeScreen extends React.Component {
   }
 
   render() {
+    // console.disableYellowBox = true; 
     const items = [
       { name: 'Events', code: '#34495e' }, { name: 'Movies', code: '#16a085'}, 
       { name: 'Debts', code: '#95a5a6' },{ name: 'Login', code: '#2980b9' } /*, { name: 'Debts', code: '#27ae60' },
@@ -55,7 +57,7 @@ class HomeScreen extends React.Component {
         />
          <ImageBackground source={require('./images/abstract.jpg')} style={{width: '100%', height: '100%'}}>
         <GridView
-          itemDimension={130}
+          itemDimension={130} 
           items={items}
           style={styles2.gridView}
           renderItem={item => (
@@ -125,6 +127,7 @@ const MyApp = createBottomTabNavigator({
   }) },
   //Groups: { screen: Groups },
   Login: { screen: Login, navigationOptions: () => ({
+    tabBarVisible : false,
     tabBarIcon: ({ tintColor }) => (
       <Icon
         name="user-circle"
@@ -132,8 +135,9 @@ const MyApp = createBottomTabNavigator({
         color={tintColor}
         size={24}
       />
+     
     )
-  }) },
+  }) }
 }, {
     tabBarOptions: {
       activeTintColor: 'white',
@@ -143,7 +147,7 @@ const MyApp = createBottomTabNavigator({
       style: {
         backgroundColor: '#36465d',
       },
-    } 
+    }, 
   });
 
 

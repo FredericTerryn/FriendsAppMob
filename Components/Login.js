@@ -6,6 +6,7 @@ import { FormLabel, FormInput, FormValidationMessage, Button } from 'react-nativ
 import { Header, statusBarProps, leftComponent, centerComponent, rightComponent, backgroundColor, outerContainerStyles, innerContainerStyles } from 'react-native-elements'
 import { SecureStore } from 'expo';
 import DropdownAlert from 'react-native-dropdownalert';
+import {SERVER_URL} from '../constant.js'
 
 
 class Login extends Component {
@@ -20,12 +21,14 @@ class Login extends Component {
         super(props);
         this.state = {
             username: '', password: '', jwtToken: '',
-            isAuthenticated: false, token: ''
+            // isAuthenticated: false,
+             token: ''
         };
     }
 
     login = () => {
-        const url = 'http://192.168.0.103:8080/';
+
+        const url = SERVER_URL;
         const user = { username: this.state.username, password: this.state.password };
         fetch(url + 'login', {
             method: 'POST',
@@ -36,9 +39,11 @@ class Login extends Component {
                 
                 this.setState({ jwtToken: token });
                 if (token !== null) {
-                    this._storeData(token);
+                     this._storeData(token);
                      this.setState({ isAuthenticated: true }); 
-                     this._retrieveData();    //overbodig toch??
+                     this.dropdown.alertWithType('success', 'Logged in', '');
+                     this.props.navigation.goBack();
+                     // this._retrieveData();    //overbodig toch??
                 } else {
                     this.dropdown.alertWithType('error', 'Login Failed', "Wrong username/ Password");
                 }
@@ -48,12 +53,13 @@ class Login extends Component {
 
     logout = () => {
         AsyncStorage.removeItem("jwt");
-        this.setState({isAuthenticated : false}); 
+        this.render();
+     //   this.setState({isAuthenticated : false}); 
     }
 
     _storeData = async (usertoken) => {
         try {
-            await AsyncStorage.setItem("jwt", (usertoken));
+            await AsyncStorage.setItem("jwt", (usertoken)); 
         } catch (error) {
             console.log(error);
         }
@@ -62,34 +68,44 @@ class Login extends Component {
     _retrieveData = async () => {
         try {
             const value = await AsyncStorage.getItem("jwt");
-            if (value !== null) {
-                this.setState({ token: value });
-            }
+
+                this.setState({ token: value }); 
+            
         } catch (error) {
              console.log(error);
         }
     }
 
+    navigateHome = () => {
+        this.props.navigation.navigate('Home')
+    }
+
     render() {
-        if (this.state.isAuthenticated === true) {
+        this._retrieveData();
+        if (this.state.token != null) {
             return (
                 <View>
-                    <Header onPress={() => navigate('Movies')}
-                        centerComponent={{ text: 'FRIENDS',  style: { color: '#fff', fontWeight:'600', fontSize: 20  }  }}
+                    <Header onPress={this.props.navigation.navigate("home")}
+                        centerComponent={{ text: 'FRIENDS',  style: { color: '#fff', fontWeight:'600', fontSize: 20  } , onPress: () => this.navigateHome() }}
                         innerContainerStyles={{ backgroundColor: '#36465d' }}
                         outerContainerStyles={{ backgroundColor: '#36465d' }}
-                        rightComponent={{ icon: 'home', color: '#fff' }}
+                        rightComponent={{ icon: 'home', color: '#fff', onPress: () => this.navigateHome() }}
                     />
                     <ImageBackground source={require('../images/abstract.jpg')} style={{width: '100%', height: '100%'}}>
+                    <Text></Text>
+                    <Text></Text>
+                    <Text></Text>
+                    <Text></Text>
+                    <Text></Text>
                      <Button rounded icon={{ name: 'send' }} onPress={this.logout} title="Logout" />
                      </ImageBackground>
                 </View>
             )
-        }
+        } 
         else {
             return (
                 <View>
-                    <Header onPress={() => navigate('Movies')}
+                    <Header 
                         centerComponent={{ text: 'FRIENDS',  style: { color: '#fff', fontWeight:'600', fontSize: 20  }  }}
                         innerContainerStyles={{ backgroundColor: '#36465d' }}
                         outerContainerStyles={{ backgroundColor: '#36465d' }}

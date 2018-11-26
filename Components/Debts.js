@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, Text, View,ImageBackground , FlatList, Image } from 'react-native';
-import { createBottomTabNavigator, Alert, AsyncStorage } from 'react-native';
+import { createBottomTabNavigator, Alert, AsyncStorage, Linking} from 'react-native';
 import { Header, statusBarProps, Button, leftComponent, centerComponent, rightComponent, backgroundColor, outerContainerStyles, innerContainerStyles } from 'react-native-elements'
 
 import Expo from 'expo';
@@ -21,6 +21,9 @@ export default class Events extends React.Component {
   }
 
 
+  goToGoogle = () => {
+    Linking.openURL('https://www.google.com/maps/search/?api=1&query=Iepersestraat+89+Moorslede');
+  }
  
 
     render() {
@@ -33,7 +36,7 @@ export default class Events extends React.Component {
             />
         <ImageBackground source={require('../images/abstract.jpg')} style={{width: '100%', height: '100%'}}>
         <Text></Text>
-        <Button rounded icon={{ name: 'send' }}  title="Debts" />
+        <Button rounded icon={{ name: 'send' }}  title="Debts" onPress={() => this.goToGoogle()} />
   </ImageBackground>
         </View>
         )
@@ -42,7 +45,7 @@ export default class Events extends React.Component {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#fff',
+    backgroundColor: '#fff', 
     height: '100%'
   }
 });
