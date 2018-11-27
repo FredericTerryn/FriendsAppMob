@@ -12,6 +12,7 @@ import { Dialog, SlideAnimation, DialogContent, DialogButton } from 'react-nativ
 import { Platform } from 'react-native';
 import { Linking } from 'react-native';
 import { FormLabel, FormInput, FormValidationMessage } from 'react-native-elements'
+import {SERVER_URL} from '../constant.js'
 
 
 
@@ -25,17 +26,21 @@ export default class Events extends React.Component {
     this.state = {
       events: [], events2: [], token: '', compatible: false,
       visible: false,
-      location: '', eventName: '', startingHour: '',
+      location: '', eventName: '', startingHour: '', date: '',
       fingerprints: false,
       result: '',
-      visible2: false
+      visible2: false, 
+      fingerPrintOk: false
     }
   }
 
 
   findUserData = (day) => {
+    if (this.state.fingerPrintOk == false){
     Platform.OS === 'android' ? this.showAndroidAlert(day) : this.scanFingerprint(day)
-
+    } else {
+      this._retrieveData(day);
+    }
   }
 
   _retrieveData = async (day) => {
@@ -52,7 +57,8 @@ export default class Events extends React.Component {
 
   FindEvents = (day) => {
     this.setState({ events2: [] });
-    const url = 'http://192.168.1.113:8080/EVENTS';
+    console.log(SERVER_URL)
+    const url = SERVER_URL + 'EVENTS';
     fetch(url, { headers: { 'Authorization': this.state.token } }
     )
       .then((response) => response.json())
@@ -62,7 +68,8 @@ export default class Events extends React.Component {
   }
 
   addEvents = (event) => {
-    const url = 'http://192.168.1.113:8080/EVENTS';
+    this.setState({visible2 : false})
+    const url = SERVER_URL + 'api/events';
     fetch(url, {
       method: 'POST',
       headers: {
@@ -71,10 +78,7 @@ export default class Events extends React.Component {
       },
       body: JSON.stringify(event)
     })
-      .then((response) => response.json())
-      .then((responseJson) => {
-        this.setState({ events: responseJson }, function () { this.compareDates(day) });
-      });
+      .catch(err => console.error("15")) 
     }
 
 
@@ -91,9 +95,6 @@ compareDates = (day) => {
 
   }
 }
-
-
-
 componentDidMount() {
   this.checkDeviceForHardware();
   this.checkForFingerprints();
@@ -112,6 +113,7 @@ checkForFingerprints = async () => {
 scanFingerprint = async (day) => {
   let result = await Expo.LocalAuthentication.authenticateAsync('Scan your finger.');
   if (result.success) {
+    this.setState({fingerPrintOk : true})
     this._retrieveData(day);
   } else {
     Alert.alert("You have to confirm your identity to see the events")
@@ -140,8 +142,8 @@ showDialogFromEvent = (item) => {
   this.setState({ visible: true });
 }
 
-addEvent = () => {
-  var newEvent = { eventName: this.state.eventName, director: this.state.director, year: this.state.year, score: this.state.score };
+addEvent = () => { 
+  var newEvent = { eventName: this.state.eventName, startingHour: this.state.startingHour, date: this.state.date, location: this.state.location };
   this.addEvents(newEvent); 
 }
 
@@ -166,7 +168,7 @@ render() {
       centerComponent={{ text: 'EventCalendar', style: { color: '#fff', fontWeight: '600', fontSize: 20 } }}
       innerContainerStyles={{ backgroundColor: '#36465d' }}
       outerContainerStyles={{ backgroundColor: '#36465d' }}
-      rightComponent={{ icon: 'home', color: '#fff' }}
+      leftComponent={{ icon: 'add', color:'#fff', onPress: () => this.setState({visible2: true})}}
     />
     <Calendar style={styles.Calendar}
       // Initially visible month. Default = Date()
@@ -206,7 +208,6 @@ render() {
         '2018-11-19': { marked: true }
       }}
     />
-    <Button rounded title="NEW" onPress={() => this.setState({ visible2: true })} />
     <Dialog
       actions={[
         <DialogButton text="CLOSE" align="center" onPress={() => this.setState({ visible: false })} />,
@@ -227,7 +228,7 @@ render() {
     </Dialog>
     <Dialog
       actions={[
-        <DialogButton text="CLOSE" align="center" onPress={() => this.setState({ visible: false })} />,
+        <DialogButton text="CLOSE" align="center" onPress={() => this.setState({ visible2: false })} />,
         <DialogButton text="SAVE" textStyle={{ color: 'blue' }} align="center" onPress={() => this.addEvent()} />,
       ]}
       onTouchOutside={() => this.setState({ visible: false })}
@@ -240,14 +241,15 @@ render() {
         <FormLabel>Eventname</FormLabel>
         <FormInput onChangeText={(text) => this.setState({ eventName: text })}
           value={this.state.eventName} />
-        <FormLabel>Password</FormLabel>
-        <FormInput onChangeText={(text) => this.setState({ startingHour: text })}
+        <FormLabel>Time (start of event)</FormLabel>
+        <FormInput onChangeText={(text) => this.setState({ startingHour: text })} 
           value={this.state.startingHour} />
+        <FormLabel>Date</FormLabel>
         <FormInput onChangeText={(text) => this.setState({ date: text })}
           value={this.state.date} />
+        <FormLabel>Location</FormLabel>
         <FormInput onChangeText={(text) => this.setState({ location: text })}
           value={this.state.location} />
-
       </DialogContent>
     </Dialog>
     <FlatList style={styles.flatlist} keyExtractor={item => item.eventName} key={item => item.eventName}

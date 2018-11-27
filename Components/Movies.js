@@ -51,7 +51,6 @@ export default class Movies extends React.Component {
   FindUserData = () => {
       console.log(SERVER_URL)
       this._retrieveData();
-    
   }
 
   FindMovies = () => {
@@ -170,6 +169,8 @@ export default class Movies extends React.Component {
   showDialogFromMovie = (item) => {
     this.setState({ title: item.title });
     this.setState({ director: item.director });
+    this.setState({ year: item.year})
+    this.setState({ score: item.score})
     this.currentid = item.id;
     this.setState({ visible: true });
   }
@@ -189,7 +190,8 @@ export default class Movies extends React.Component {
           centerComponent={{ text: 'Movies', style: { color: '#fff', fontWeight: '600', fontSize: 20 } }}
           innerContainerStyles={{ backgroundColor: '#36465d' }} 
           outerContainerStyles={{ backgroundColor: '#36465d' }}
-          rightComponent={{ icon: 'home', color: '#fff' }}
+          leftComponent={{ icon: 'add', color:'#fff', onPress: () => this.setState({visible2: true})}}
+          rightComponent={{ icon: 'refresh', color: '#fff', onPress: () => this.FindUserData() }}
         />
         <TouchableWithoutFeedback onPress={() => this.FindUserData()}>
           <View>
@@ -202,15 +204,10 @@ export default class Movies extends React.Component {
           onChangeText={text => this.searchFilterFunction(text)}
           autoCorrect={false}
         />
-        <Text> </Text>
-        <Button rounded icon={{ name: 'refresh' }} title=" Movies " onPress={() => this.FindUserData()} />
-        <Text></Text>
-        <Button rounded icon={{ name: 'refresh' }} title=" addmoviespage " onPress={() => this.addMovieNavigation()} />
-        <Button rounded  title=" addmovie " onPress={() => this.setState({visible2: true})} />
         <Dialog
           actions={[
             <DialogButton text="CLOSE" align="center" onPress={() => this.setState({ visible: false })} />,
-            <DialogButton text="DELETE MOVIE" textStyle={{ color: 'red' }} align="center" onPress={() => this.DeleteMovieById()} />,
+            <DialogButton text=" DELETE MOVIE " textStyle={{ color: 'red' }} align="center" onPress={() => this.DeleteMovieById()} />,
           ]}
           onTouchOutside={() => this.setState({ visible: false })}
           visible={this.state.visible}
@@ -219,8 +216,12 @@ export default class Movies extends React.Component {
           })}
         >
           <DialogContent>
-            <Text h1>Title: {this.state.title}</Text>
-            <Text> Director: {this.state.director}</Text>
+            <Text h3>{this.state.title}               </Text>
+            <Text h4 style={styles.baseText}>Director:</Text>
+            <Text h4>{this.state.director}</Text>
+            <Text h4>{this.state.year}</Text> 
+            <Text h4 style={styles.baseText}>Score (out of 10)</Text>
+            <Text h4>{this.state.score}</Text>
           </DialogContent>
         </Dialog>
         <Dialog
@@ -235,13 +236,17 @@ export default class Movies extends React.Component {
           })} 
         >
           <DialogContent>
+          <FormLabel>Title</FormLabel>
           <FormInput onChangeText={(text) => this.setState({ title: text })}
             value={this.state.title} />
-            <FormInput onChangeText={(text) => this.setState({ director: text })}
+            <FormLabel>Director</FormLabel>
+            <FormInput onChangeText={(text) => this.setState({ director: text })} 
             value={this.state.director} />
+            <FormLabel>Year</FormLabel>
             <FormInput onChangeText={(text) => this.setState({ year: text })}
             value={this.state.year} />
-            <FormInput onChangeText={(text) => this.setState({ score: text })}
+            <FormLabel>Score</FormLabel>
+            <FormInput onChangeText={(text) => this.setState({ score: text })} 
             value={this.state.score} />
           </DialogContent>
         </Dialog>
@@ -256,23 +261,6 @@ export default class Movies extends React.Component {
             </View>
           </TouchableWithoutFeedback>}
           data={this.state.movies} />
-        <TouchableOpacity
-          style={{
-            borderWidth: 1,
-            borderColor: 'rgba(0,0,0,0.2)',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: 50,
-            height: 50,
-            backgroundColor: 'lightgrey',
-            borderRadius: 50,
-            marginLeft: '5%',
-            marginBottom: '5%'
-          }}
-        >
-          <Icon name={"refresh"} size={30} color="#fff" />
-        </TouchableOpacity>
-
       </View>
     )
   }
@@ -286,5 +274,8 @@ const styles = StyleSheet.create({
   },
   flatlist: {
     backgroundColor: '#fff'
+  } , 
+  baseText : {
+    color: 'grey'
   }
 });
